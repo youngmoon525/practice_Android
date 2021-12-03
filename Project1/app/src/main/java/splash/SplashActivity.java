@@ -7,8 +7,9 @@ import android.os.Handler;
 
 import androidx.appcompat.app.AppCompatActivity;
 
-import main.MainActivity;
 import com.example.project1.R;
+
+import main.MainActivity;
 
 public class SplashActivity extends AppCompatActivity {
 
@@ -26,7 +27,7 @@ public class SplashActivity extends AppCompatActivity {
                 Intent mainIntent = new Intent(SplashActivity.this, MainActivity.class);
                 progressDialog.dismiss();
                 startActivity(mainIntent);
-
+                finish();
             }
         }, 2000);
     }

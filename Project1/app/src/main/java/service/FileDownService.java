@@ -5,9 +5,11 @@ import android.content.Intent;
 import android.os.IBinder;
 import android.util.Log;
 
+import main.MainActivity;
+
 public class FileDownService extends Service {
     private static final String TAG = "main:MyService";
-
+    Thread thread ;
 
     @Override
     public void onCreate() {
@@ -17,31 +19,41 @@ public class FileDownService extends Service {
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-        Log.d(TAG, "onStartCommand: 호출됨 " + flags + ", " + startId);
+        Log.d(TAG, "onStartCommand() called");
 
-        if(intent == null){
-            return Service.START_STICKY;
-        }else {
+        if (intent == null) {
+            return Service.START_STICKY; //서비스가 종료되어도 자동으로 다시 실행시켜줘!
+        } else {
+            // intent가 null이 아니다.
+            // 액티비티에서 intent를 통해 전달한 내용을 뽑아낸다.(if exists)
+            String command = intent.getStringExtra("command");
+            String name = intent.getStringExtra("name");
+            // etc..
             processCommand(intent);
+            Log.d(TAG, "전달받은 데이터: " + command+ ", " +name);
         }
 
         return super.onStartCommand(intent, flags, startId);
     }
 
     private void processCommand(Intent intent) {
-        String command = intent.getStringExtra("command");
-        String name = intent.getStringExtra("name");
-        Log.d(TAG, "command : " + command
-                        + ", name : " + name);
-        for(int i=0; i<5; i++){
-            try {
-                Thread.sleep(1000);
-            } catch (InterruptedException e) {
-                e.getMessage();
-            }
-            Log.d(TAG, "Waiting " + (i+1) + " seconds...");
-        }
 
+        thread = new Thread(new Runnable() {
+            @Override
+            public void run() {
+
+                try {
+                    for (int i = 0 ; i<100; i++){
+                        MainActivity.setFileProgress(i);
+                        Thread.sleep(1000);
+                        Log.d(TAG, "onStartCommand() called");
+                    }
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+        });
+        thread.start();
     }
 
     @Override
@@ -54,5 +66,6 @@ public class FileDownService extends Service {
     public void onDestroy() {
         super.onDestroy();
         Log.d(TAG, "onDestroy: 호출됨");
+        thread.interrupt();
     }
 }
